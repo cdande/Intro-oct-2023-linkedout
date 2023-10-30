@@ -4,6 +4,7 @@
     "angular.ng-template",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "johnpapa.vscode-peacock"
+    "johnpapa.vscode-peacock",
+    "bradlc.vscode-tailwindcss"
   ]
 }

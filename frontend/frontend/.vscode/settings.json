@@ -25,4 +25,5 @@
        "*.css": "tailwindcss"
     },
     "editor.linkedEditing": true,
+    "editor.formatOnSave": true
 }
