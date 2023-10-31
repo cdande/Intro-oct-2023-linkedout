@@ -5,12 +5,15 @@ import { reducers } from "./state";
 import { provideState, provideStore } from "@ngrx/store";
 import { provideStoreDevtools } from "@ngrx/store-devtools";
 import { CounterFeature } from "./state/counter";
+import { CounterEffects } from "./state/counter.effects";
+import { provideEffects } from "@ngrx/effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideStore(reducers),
     provideState(CounterFeature),
+    provideEffects([CounterEffects]),
     provideStoreDevtools(),
   ],
 };
