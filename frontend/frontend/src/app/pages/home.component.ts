@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 
 @Component({
   standalone: true,
+
   template: `
     <div class="prose">
       <h2>Welcome to the Application</h2>

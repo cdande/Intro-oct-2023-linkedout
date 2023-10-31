@@ -34,7 +34,7 @@ import { TodoItem } from "src/app/models";
       </li>
     </ul>
   `,
-  styles: [],
+  styles: [".completed: { text-decoration: line-through}"],
 })
 export class TodoListComponent {
   @Input() todos: TodoItem[] = [];

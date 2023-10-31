@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
@@ -9,15 +9,16 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
   template: `
     <form [formGroup]="form" (ngSubmit)="addItem()">
       <div class="form-control w-full max-w-xs">
-        <label class="label">
+        <label for="description" class="label">
           <span class="label-text">Description?</span>
         </label>
         <input
+          id="description"
           formControlName="description"
           type="text"
           class="input input-bordered w-full max-w-xs"
         />
-        <label class="label">
+        <label for="description" class="label">
           <span class="label-text-alt"
             >What do you want to add to your list?</span
           >
@@ -31,10 +32,10 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
   styles: [],
 })
 export class TodoEntryComponent {
+  @Output() itemAdded = new EventEmitter<string>();
   form = new FormGroup({
     description: new FormControl<string>(""),
   });
-  itemAdded: any;
 
   addItem() {
     this.itemAdded.emit(this.form.controls.description.value!);

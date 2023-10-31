@@ -9,10 +9,10 @@ import { TodoItem } from "../models";
   standalone: true,
   template: `
     <section>
-      <app-todo-entry />
+      <app-todo-entry (itemAdded)="addItem($event)" />
     </section>
     <section>
-      <app-todo-list />
+      <app-todo-list [todos]="list" />
     </section>
   `,
   styles: [],
@@ -22,6 +22,7 @@ export class TodosComponent {
   list: TodoItem[] = [
     { id: "1", description: "Wash Car", completed: false },
     { id: "2", description: "Rake Leaves", completed: true },
+    { id: "3", description: "Make TAcos", completed: false },
   ];
 
   addItem(description: string) {
