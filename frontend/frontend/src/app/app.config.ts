@@ -7,6 +7,7 @@ import { provideStoreDevtools } from "@ngrx/store-devtools";
 import { CounterFeature } from "./state/counter";
 import { CounterEffects } from "./state/counter.effects";
 import { provideEffects } from "@ngrx/effects";
+import { provideHttpClient } from "@angular/common/http";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideStore(reducers),
     provideState(CounterFeature),
     provideEffects([CounterEffects]),
+    provideHttpClient(),
     provideStoreDevtools(),
   ],
 };
