@@ -14,30 +14,42 @@ public class UserService
         _documentSession = documentSession;
     }
 
-    public async Task<Guid> GetUserIdAsync()
+    // "Command" - "Do This Thing"
+    // "Query" - Asking it something.
+    public async Task<Guid> GetUserIdAsync(CancellationToken token)
     {
-        // a "map" from the subject to a user id for us.
+        Claim? sub = GetUserSub();
+
+        var user = await _documentSession.Query<User>().SingleAsync(u => u.Sub == sub.Value, token);
+        return user.Id;
+    }
+
+    private Claim GetUserSub()
+    {
         var sub = _contextAccessor.HttpContext?.User.Claims.SingleOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         if (sub is null)
         {
             throw new Exception("User Service Can only be used in authenticated endpoints");
         }
 
-        // see if we already "know" this person.
-        var user = await _documentSession.Query<User>().SingleOrDefaultAsync(u => u.Sub == sub.Value);
-        // if they have, we will return their "local" user Id (Guid)
-        if (user is not null)
-        {
-            return user.Id;
-        }
-        else
+        return sub;
+    }
+
+    public async Task LoginUserAsync(CancellationToken token)
+    {
+
+        Claim? sub = GetUserSub();
+
+
+        var user = await _documentSession.Query<User>().SingleOrDefaultAsync(u => u.Sub == sub.Value, token);
+
+        if (user is null)
         {
             var newUser = new User(Guid.NewGuid(), sub.Value);
             _documentSession.Store(newUser);
-            await _documentSession.SaveChangesAsync();
-            return newUser.Id;
-        }
+            await _documentSession.SaveChangesAsync(token);
 
+        }
     }
 }
 

@@ -52,6 +52,12 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.MapPost("/user/logins", async (UserService userService, CancellationToken token) =>
+{
+    await userService.LoginUserAsync(token); // feels like a command!
+    return Results.Ok();
+});
+
 app.MapPost("/user/counter", async (CounterRequest request,
     IDocumentSession session,
     UserService user, CancellationToken token) =>
