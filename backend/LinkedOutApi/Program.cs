@@ -1,3 +1,6 @@
+using LinkedOutApi;
+using Marten;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,8 +8,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+builder.Services.AddCors(builder => // "Promiscuous Mode"
+{
+    builder.AddDefaultPolicy(pol =>
+    {
+        pol.AllowAnyOrigin();
+        pol.AllowAnyMethod();
+        pol.AllowAnyHeader();
+    });
+});
+
+var connectionString = builder.Configuration.GetConnectionString("database") ?? throw new Exception("We need a database");
+
+builder.Services.AddMarten(options =>
+{
+    options.Connection(connectionString);
+}).UseLightweightSessions();
+
+builder.Services.AddSingleton<UserService>();
 var app = builder.Build();
 
+
+app.UseCors();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -14,29 +38,35 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/user/counter", async (CounterRequest request,
+    IDocumentSession session,
+    UserService user) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    var userId = await user.GetUserId();
+    var doc = new UserCounter(userId, request.Current, request.By);
+    session.Store(doc);
+    await session.SaveChangesAsync();
+    return Results.Ok(doc);
+});
+
+app.MapGet("/user/counter", async (IDocumentSession session, UserService user) =>
+{
+    var userId = await user.GetUserId();
+    var doc = await session.Query<UserCounter>().SingleOrDefaultAsync(u => u.Id == userId);
+    if (doc is null)
+    {
+        return Results.NotFound();
+    }
+    else
+    {
+        return Results.Ok(doc);
+    }
+});
+
+
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public record CounterRequest(int Current, int By);
+public record UserCounter(Guid Id, int Current, int By);
