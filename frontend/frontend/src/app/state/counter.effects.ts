@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Actions, concatLatestFrom, createEffect, ofType } from "@ngrx/effects";
 import { Store } from "@ngrx/store";
-import { map, mergeMap, switchMap, tap } from "rxjs";
+import { debounceTime, map, mergeMap, switchMap, tap } from "rxjs";
 import {
   CounterCommands,
   CounterDocuments,
@@ -10,10 +10,12 @@ import {
 import { CounterFeature, CounterState } from "./counter";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "src/environments/environment";
-
 @Injectable()
 export class CounterEffects {
   private readonly baseUrl = environment.apiUrl;
+
+  // effect that says "when the counter feature is entered"
+  // "log the user in" - run a command.
 
   loadCounterData$ = createEffect(() =>
     this.actions$.pipe(
@@ -30,15 +32,17 @@ export class CounterEffects {
     )
   );
 
-  logIn$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(CounterEvents.counterFeatureEntered),
-      mergeMap(() =>
-        this.client
-          .post(this.baseUrl + "user/logins", {})
-          .pipe(map(() => CounterEvents.userLoggedIn()))
-      )
-    )
+  logIn$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(CounterEvents.counterFeatureEntered),
+        mergeMap(() =>
+          this.client
+            .post(this.baseUrl + "user/logins", {})
+            .pipe(map(() => CounterEvents.userLoggedIn()))
+        )
+      ),
+    { dispatch: true }
   );
 
   logIt$ = createEffect(
@@ -57,11 +61,12 @@ export class CounterEffects {
           CounterCommands.decrementTheCount,
           CounterCommands.resetTheCount,
           CounterCommands.setCountBy
-        ), //if it isn't one of these, forget about it. "filter"
+        ), // if itisn't one of these, forget it about it. "filter"
+        debounceTime(1000),
         concatLatestFrom(() =>
           this.store.select(CounterFeature.selectCounterFeatureState)
         ),
-        map(([_, data]) => data),
+        map(([_, data]) => data), // => data
         switchMap((data) =>
           this.client
             .post(`${this.baseUrl}user/counter`, data)

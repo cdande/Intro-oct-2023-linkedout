@@ -7,18 +7,18 @@ export const CounterCommands = createActionGroup({
   events: {
     "Increment the Count": emptyProps(),
     "Decrement the Count": emptyProps(),
-    "reset The Count": emptyProps(),
+    "Reset the Count": emptyProps(),
     "Set Count By": props<{ by: CountByValues }>(),
   },
 });
 
 // Events
-//Things that happened that can mean 0 > things.
+// Things that happened that can mean 0 > things .
 export const CounterEvents = createActionGroup({
   source: "Counter Events",
   events: {
     "Counter Feature Entered": emptyProps(),
-    "User logged In": emptyProps(),
+    "User Logged In": emptyProps(),
   },
 });
 

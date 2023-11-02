@@ -11,23 +11,23 @@ import { CounterCommands } from "src/app/state/counter.actions";
   template: `
     <div class="join">
       <button
+        [disabled]="countingBy() === 1"
         (click)="setCountBy(1)"
         class="btn join-item"
-        [disabled]="CountingBy() === 1"
       >
         Count By 1
       </button>
       <button
+        [disabled]="countingBy() === 3"
         (click)="setCountBy(3)"
         class="btn join-item"
-        [disabled]="CountingBy() === 3"
       >
         Count By 3
       </button>
       <button
+        [disabled]="countingBy() === 5"
         (click)="setCountBy(5)"
         class="btn join-item"
-        [disabled]="CountingBy() === 5"
       >
         Count By 5
       </button>
@@ -37,8 +37,7 @@ import { CounterCommands } from "src/app/state/counter.actions";
 })
 export class CountByComponent {
   store = inject(Store);
-  CountingBy = this.store.selectSignal(CounterFeature.selectBy);
-
+  countingBy = this.store.selectSignal(CounterFeature.selectBy);
   setCountBy(by: CountByValues) {
     this.store.dispatch(CounterCommands.setCountBy({ by }));
   }
